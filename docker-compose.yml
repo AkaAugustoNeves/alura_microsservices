@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+
+  db_pagamentos:
+    container_name: db_pagamentos
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db_pagamentos'
+      MYSQL_USER: 'pagamento'
+      MYSQL_PASSWORD: 'pagamento'
+      MYSQL_ROOT_PASSWORD: 'pagamento'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - ./db/pagamentos:/var/lib/mysql
+    deploy:
+      resources:
+       limits:
+        memory: 150MB
