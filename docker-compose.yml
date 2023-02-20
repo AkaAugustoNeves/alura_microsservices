@@ -4,20 +4,36 @@ services:
 
   db_pagamentos:
     container_name: db_pagamentos
-    image: mysql:5.7
-    restart: always
+    image: postgres
     environment:
-      MYSQL_DATABASE: 'db_pagamentos'
-      MYSQL_USER: 'pagamento'
-      MYSQL_PASSWORD: 'pagamento'
-      MYSQL_ROOT_PASSWORD: 'pagamento'
-    ports:
-      - '3306:3306'
-    expose:
-      - '3306'
+      - POSTGRES_DB=db_pagamentos
+      - POSTGRES_USER=pagamentos
+      - POSTGRES_PASSWORD=pagamentos
+      - PGDATA=/data/postgres
     volumes:
-      - ./db/pagamentos:/var/lib/mysql
-    deploy:
-      resources:
-       limits:
-        memory: 150MB
+      - ./db/pagamentos:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: always
+    networks:
+      - db
+
+  db_pedidos:
+    container_name: db_pedidos
+    image: postgres
+    environment:
+      - POSTGRES_DB=db_pedidos
+      - POSTGRES_USER=pedidos
+      - POSTGRES_PASSWORD=pedidos
+      - PGDATA=/data/postgres
+    volumes:
+      - ./db/pedidos:/data/postgres
+    ports:
+      - "5431:5432"
+    restart: always
+    networks:
+      - db
+
+networks:
+  db:
+    driver: bridge
