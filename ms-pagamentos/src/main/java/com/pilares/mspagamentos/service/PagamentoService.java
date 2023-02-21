@@ -1,5 +1,7 @@
 package com.pilares.mspagamentos.service;
 
+import java.util.Optional;
+
 import javax.persistence.EntityNotFoundException;
 
 import org.modelmapper.ModelMapper;
@@ -8,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.pilares.mspagamentos.http.PedidoClient;
 import com.pilares.mspagamentos.model.dto.PagamentoDto;
 import com.pilares.mspagamentos.model.entity.Pagamento;
 import com.pilares.mspagamentos.model.enuns.Status;
@@ -21,6 +24,9 @@ public class PagamentoService {
 	
 	@Autowired
 	private ModelMapper modelMapper;
+	
+	@Autowired 
+	private PedidoClient pedido;
 	
 	public Page<PagamentoDto> obterTodos(Pageable paginacao) {
         return pagamentoRepositoy
@@ -53,4 +59,28 @@ public class PagamentoService {
     public void excluirPagamento(Long id) {
     	pagamentoRepositoy.deleteById(id);
     }
+    
+    public void confirmarPagamento(Long id) {
+    	Optional<Pagamento> pagamento = pagamentoRepositoy.findById(id);
+    	
+    	if(!pagamento.isPresent()) {
+    		throw new EntityNotFoundException();
+    	}
+    	
+    	pagamento.get().setStatus(Status.CONFIRMADO);
+    	pagamentoRepositoy.save(pagamento.get());
+    	pedido.atualizaPagamento(pagamento.get().getPedidoId());
+    }
+
+	public void alterarStatus(Long id) {
+		Optional<Pagamento> pagamento = pagamentoRepositoy.findById(id);
+    	
+    	if(!pagamento.isPresent()) {
+    		throw new EntityNotFoundException();
+    	}
+    	
+    	pagamento.get().setStatus(Status.CONFIRMADO_SEM_INTEGRACAO);
+    	pagamentoRepositoy.save(pagamento.get());
+		
+	}
 }
