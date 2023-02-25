@@ -16,7 +16,7 @@ services:
       - "5432:5432"
     restart: always
     networks:
-      - db
+      - dbs
 
   db_pedidos:
     container_name: db_pedidos
@@ -32,8 +32,53 @@ services:
       - "5431:5432"
     restart: always
     networks:
-      - db
+      - dbs
+
+  ms-eureka:
+    container_name: ms-eureka
+    build: ./ms-eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - mss
+    restart: always
+    
+  ms-gateway:
+    container_name: ms-gateway
+    build: ./ms-gateway
+    ports:
+      - "80:80"
+    networks:
+      - mss
+    restart: always
+    depends_on:
+      - ms-eureka
+
+  ms-pagamentos:
+    container_name: ms-pagamentos
+    build: ./ms-pagamentos
+    networks:
+      - mss
+      - dbs
+    restart: always
+    depends_on:
+      - ms-eureka
+      - db_pagamentos
+
+  ms-pedidos:
+    container_name: ms-pedidos
+    build: ./ms-pedidos
+    networks:
+      - mss
+      - dbs
+    restart: always
+    depends_on:
+      - ms-eureka
+      - db_pedidos
+
 
 networks:
-  db:
+  mss:
+    driver: bridge
+  dbs:
     driver: bridge
